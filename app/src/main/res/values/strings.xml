@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Autobus</string>
+    <string name="accedeix">Accedeix</string>
+    <string name="introdueix_la_contrasenya">Introdueix la contrasenya</string>
+    <string name="password">Password:</string>
+    <string name="introdueix_el_teu_usuari">Introdueix el teu usuari</string>
+    <string name="user">User:</string>
+    <string name="acabar_jornada">Acabar jornada</string>
+</resources>
