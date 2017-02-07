@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class SqlClass extends SQLiteOpenHelper {
 
-    String tablaUsersInterna = "CREATE TABLE tablaUsers(matricula TEXT PRIMARY KEY, password TEXT)";
+    String tablaUsersInterna = "CREATE TABLE tablaUsersInterna(matricula TEXT PRIMARY KEY, password TEXT)";
     String tablaPosicioInterna = "CREATE TABLE tablaPosicio(matricula TEXT, longitud TEXT, latitud TEXT, fecha DATE)";
 
     public SqlClass(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {

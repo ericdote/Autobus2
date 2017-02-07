@@ -1,5 +1,6 @@
 package com.example.eric.autobus;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
@@ -31,15 +32,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.btnSubmit:
                 if (!(etUser.getText().toString().equals(""))) {
-
                     conexioBD(etUser, etPass);
-
+                    startService(new Intent(MainActivity.this,
+                            GeoLocalizacion.class));
                 } else {
                     Toast.makeText(this, "Introdueix valors", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.btnStop:
-                //TODO
+                stopService(new Intent(MainActivity.this,
+                        GeoLocalizacion.class));
                 break;
         }
     }
@@ -51,12 +53,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         SQLiteDatabase db = sql.getWritableDatabase();
         if (db != null) {
             String[] args = new String[]{user, pass};
-            Cursor c = db.rawQuery("SELECT * FROM tablaUsers WHERE ? LIKE matricula AND ? LIKE password", args);
+            Cursor c = db.rawQuery("SELECT * FROM tablaUsersInterna WHERE ? LIKE matricula AND ? LIKE password", args);
             if (c.moveToFirst()) {
                 do {
-
+                    Toast.makeText(this, "Ok", Toast.LENGTH_SHORT).show();
                 } while (c.moveToNext());
-
             } else {
                 Toast.makeText(this, "L'usuari no existeix", Toast.LENGTH_SHORT).show();
             }
