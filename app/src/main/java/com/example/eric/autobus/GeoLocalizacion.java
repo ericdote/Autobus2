@@ -1,11 +1,16 @@
 package com.example.eric.autobus;
 
+import android.Manifest;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -16,10 +21,13 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
-public class GeoLocalizacion extends Service implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+public class GeoLocalizacion extends Service {
 
+    private static final String LOG_TAG = "";
     private GoogleApiClient apiClient;
     private double latitud, longitud;
+    private LocationListener listener;
+    private LocationManager locationManager;
 
     public GeoLocalizacion() {
     }
@@ -33,65 +41,60 @@ public class GeoLocalizacion extends Service implements GoogleApiClient.OnConnec
     }
 
 
+
+    @SuppressWarnings("MissingPermission")
     @Override
     public void onCreate() {
         super.onCreate();
-        Toast.makeText(this, "Servicio Creado", Toast.LENGTH_SHORT).show();
-        apiClient = new GoogleApiClient.Builder(this)
-                .addOnConnectionFailedListener(this)
-                .addConnectionCallbacks(this)
-                .addApi(LocationServices.API)
-                .build();
+        listener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                Intent i = new Intent("location_update");
+                i.putExtra("coordinates", location.getLongitude()+" "+location.getLatitude());
+                sendBroadcast(i);
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+            }
+        };
+        locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, listener);
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Iniciando servicio", Toast.LENGTH_SHORT).show();
+
         return super.onStartCommand(intent, flags, startId);
     }
 
 
+    @SuppressWarnings("MissingPermission")
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Toast.makeText(this, "TO QUIETOh", Toast.LENGTH_SHORT).show();
-    }
-
-    //Localizacion
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Toast.makeText(this, "gtrefds5gtr", Toast.LENGTH_SHORT).show();
-        //Conectado correctamente a Google Play Services
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Activa el permisos per l'aplicacio", Toast.LENGTH_SHORT).show();
-        } else {
-            Location loc = LocationServices.FusedLocationApi.getLastLocation(apiClient);
-            Toast.makeText(this, "holaaaaaaaaaaa", Toast.LENGTH_SHORT).show();
-            updateUI(loc);
+        if(locationManager != null){
+            locationManager.removeUpdates(listener);
         }
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {
-        //Se ha interrumpido la conexión con Google Play Services
-        Toast.makeText(this, "Suspendido", Toast.LENGTH_SHORT).show();
-    }
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        //Se ha producido un error que no se puede resolver automáticamente
-        //y la conexión con los Google Play Services no se ha establecido.
-        Toast.makeText(this, "Fail", Toast.LENGTH_SHORT).show();
-   }
 
-    private void updateUI(Location loc) {
-        if (loc != null) {
-            latitud = loc.getLongitude();
-            longitud = loc.getLongitude();
-            Toast.makeText(this, latitud+"  "+longitud, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Longitud i Latitud: (desconeguda)", Toast.LENGTH_SHORT).show();
-        }
-    }
+
 }
