@@ -34,6 +34,7 @@ public class GeoLocalizacion extends Service {
     private LocationListener listener;
     private LocationManager locationManager;
     ConexionWebService con = new ConexionWebService();
+    String matricula;
 
     public GeoLocalizacion() {
     }
@@ -55,11 +56,14 @@ public class GeoLocalizacion extends Service {
             public void onLocationChanged(Location location) {
 
                 String localizacion;
-                double latitud = location.getLatitude(), longitut = location.getLongitude();
+                String latitud = String.valueOf(location.getLatitude()), longitut = String.valueOf(location.getLongitude());
                 localizacion = latitud + "  " + longitut;
                 Toast.makeText(GeoLocalizacion.this, "" + localizacion, Toast.LENGTH_SHORT).show();
+                con.execute(
+                    matricula,
+                        latitud,
+                            longitut);
 
-                con.doInBackground();
             }
 
             @Override
@@ -88,7 +92,7 @@ public class GeoLocalizacion extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Iniciando servicio", Toast.LENGTH_SHORT).show();
-
+        matricula = intent.getStringExtra("matricula");
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -152,6 +156,8 @@ public class GeoLocalizacion extends Service {
                 Toast.makeText(GeoLocalizacion.this, "No insertado", Toast.LENGTH_SHORT).show();
             }
         }
+
+
     }
 
 
