@@ -28,14 +28,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        
         if(!runtime_permissions()){
             enable_buttons();
         }
     }
-
-
 
     @Override
     public void onClick(View v) {
@@ -88,19 +84,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if(broadcastReciver == null){
-            broadcastReciver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    Toast.makeText(context, ""+intent.getExtras().get("coordinates"), Toast.LENGTH_SHORT).show();
-                }
-            };
-            registerReceiver(broadcastReciver, new IntentFilter("location_update"));
-        }
-    }
 
     @Override
     protected void onDestroy() {

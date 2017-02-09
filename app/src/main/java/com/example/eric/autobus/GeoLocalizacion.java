@@ -1,45 +1,49 @@
 package com.example.eric.autobus;
 
-import android.Manifest;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
 
 public class GeoLocalizacion extends Service {
 
-    private static final String LOG_TAG = "";
-    private GoogleApiClient apiClient;
-    private double latitud, longitud;
     private LocationListener listener;
     private LocationManager locationManager;
+    ConexionWebService con = new ConexionWebService();
 
     public GeoLocalizacion() {
     }
 
-    //Servicios
 
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
-
 
 
     @SuppressWarnings("MissingPermission")
@@ -49,9 +53,13 @@ public class GeoLocalizacion extends Service {
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                Intent i = new Intent("location_update");
-                i.putExtra("coordinates", location.getLongitude()+" "+location.getLatitude());
-                sendBroadcast(i);
+
+                String localizacion;
+                double latitud = location.getLatitude(), longitut = location.getLongitude();
+                localizacion = latitud + "  " + longitut;
+                Toast.makeText(GeoLocalizacion.this, "" + localizacion, Toast.LENGTH_SHORT).show();
+
+                con.doInBackground();
             }
 
             @Override
@@ -89,12 +97,62 @@ public class GeoLocalizacion extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(locationManager != null){
+        if (locationManager != null) {
             locationManager.removeUpdates(listener);
         }
     }
 
 
+    private class ConexionWebService extends AsyncTask<String, Void, Boolean> {
+
+        public ConexionWebService() {
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+
+            boolean resul = true;
+
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost post = new HttpPost("http://10.0.2.2:2731/Api/Clientes/Cliente");
+            post.setHeader("content-type", "application/json");
+
+            try {
+
+                JSONObject ubicacion = new JSONObject();
+
+                ubicacion.put("matricula", params[0]);
+                ubicacion.put("latitud", params[1]);
+                ubicacion.put("longitud", params[2]);
+                ubicacion.put("data", params[3]);
+
+                StringEntity entity = new StringEntity(ubicacion.toString());
+                post.setEntity(entity);
+
+                HttpResponse resp = httpClient.execute(post);
+                String respStr = EntityUtils.toString(resp.getEntity());
+
+                if (!respStr.equals("true")) {
+                    resul = true;
+                }
+
+
+            } catch (Exception e) {
+                Log.e("ServicioRest", "Error!", e);
+                resul = false;
+            }
+            return resul;
+        }
+
+        protected void onPostExecute(Boolean result) {
+
+            if (result) {
+                Toast.makeText(GeoLocalizacion.this, "Insertado OK", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(GeoLocalizacion.this, "No insertado", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
 
 }
