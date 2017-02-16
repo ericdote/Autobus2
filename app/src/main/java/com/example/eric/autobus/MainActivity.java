@@ -23,7 +23,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BroadcastReceiver broadcastReciver;
 
 
-
+    /**
+     * Iniciamos la activity y miramos si tenemos los permisos, en caso de que devuelva false activamos los botones
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,17 +36,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Tenemos dos botones
+     * btnStop que para el servicio de hacer inserts intos
+     * btnSubmit que comprueba que no haya campos vacios, una vez comprobado esto mira si el usuario es correcto
+     * Si es correcto lanza un Intent a la clase Service para iniciarla.
+     * @param v
+     */
     @Override
     public void onClick(View v) {
         EditText etUser = (EditText) findViewById(R.id.etUser);
         EditText etPass = (EditText) findViewById(R.id.etPass);
+        boolean trobat;
         switch (v.getId()) {
             case R.id.btnSubmit:
                 if (!(etUser.getText().toString().equals(""))) {
-                    conexioBD(etUser, etPass);
-                    Intent i = new Intent(getApplicationContext(), GeoLocalizacion.class);
-                    i.putExtra("matricula", etUser.getText().toString());
-                    startService(i);
+                    trobat = conexioBD(etUser, etPass);
+                    if(trobat){
+                        Intent i = new Intent(getApplicationContext(), GeoLocalizacion.class);
+                        i.putExtra("matricula", etUser.getText().toString());
+                        startService(i);
+                    } else {
+                        Toast.makeText(this, "L'usuari no existeix", Toast.LENGTH_SHORT).show();
+                    }
+
                 } else {
                     Toast.makeText(this, "Introdueix valors", Toast.LENGTH_SHORT).show();
                 }
@@ -55,24 +71,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void conexioBD(EditText etUser, EditText etPass) {
+    /**
+     * Metodo que le llega el usuario y su password, comprueba si existe y devuelvo un boolean
+     * true si exise el usuario false si no existe
+     * @param etUser
+     * @param etPass
+     * @return
+     */
+    public boolean conexioBD(EditText etUser, EditText etPass) {
         String user = etUser.getText().toString();
         String pass = etPass.getText().toString();
+        boolean trobat = false;
         SqlClass sql = new SqlClass(this, "Autobusus", null, 1);
         SQLiteDatabase db = sql.getWritableDatabase();
         if (db != null) {
             String[] args = new String[]{user, pass};
             Cursor c = db.rawQuery("SELECT * FROM tablaUsersInterna WHERE ? LIKE matricula AND ? LIKE password", args);
             if (c.moveToFirst()) {
-                do {
-                    Toast.makeText(this, "Ok", Toast.LENGTH_SHORT).show();
-                } while (c.moveToNext());
+                trobat = true;
             } else {
-                Toast.makeText(this, "L'usuari no existeix", Toast.LENGTH_SHORT).show();
+                trobat = false;
             }
         }
+        return trobat;
     }
 
+    /**
+     * Metodo que comprueba que los permisos sean a igual a 100.
+     * Si es asi llama al metodo que da funcionalidad a los botones
+     * En caso contrario llama a un metodo para comprobar permisos.
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -94,6 +125,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Metodo que activa los botones
+     */
     private void enable_buttons() {
         Button btnSubmit = (Button) findViewById(R.id.btnSubmit);
         Button btnStop = (Button) findViewById(R.id.btnStop);
@@ -101,6 +135,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnStop.setOnClickListener(this);
     }
 
+    /**
+     * Si tenemos los permisos envia true, si no false
+     * @return
+     */
     private boolean runtime_permissions() {
         if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},100);
