@@ -23,8 +23,8 @@ public class SqlClass extends SQLiteOpenHelper {
 
         db.execSQL(tablaUsersInterna);
 
-        db.execSQL("INSERT INTO tablaUsersInterna VALUES ('1111AAAA', 'hola')");
-        db.execSQL("INSERT INTO tablaUsersInterna VALUES ('2222BBBB', 'adios')");
+        db.execSQL("INSERT INTO tablaUsersInterna VALUES ('1111AAA', 'hola')");
+        db.execSQL("INSERT INTO tablaUsersInterna VALUES ('2222BBB', 'adios')");
         db.execSQL("INSERT INTO tablaUsersInterna VALUES ('3333CCC', 'hola')");
 
         db.execSQL(tablaPosicioInterna);
