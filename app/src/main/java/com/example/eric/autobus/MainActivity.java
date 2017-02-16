@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (!(etUser.getText().toString().equals(""))) {
                     conexioBD(etUser, etPass);
                     Intent i = new Intent(getApplicationContext(), GeoLocalizacion.class);
-                    i.putExtra("matricula", etUser.toString());
+                    i.putExtra("matricula", etUser.getText().toString());
                     startService(i);
                 } else {
                     Toast.makeText(this, "Introdueix valors", Toast.LENGTH_SHORT).show();

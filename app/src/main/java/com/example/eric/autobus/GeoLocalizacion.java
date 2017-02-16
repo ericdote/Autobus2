@@ -27,14 +27,20 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 
 public class GeoLocalizacion extends Service {
 
     private LocationListener listener;
     private LocationManager locationManager;
-    ConexionWebService con = new ConexionWebService();
     String matricula;
+    double longitut, latitud;
+    String date;
 
     public GeoLocalizacion() {
     }
@@ -54,16 +60,15 @@ public class GeoLocalizacion extends Service {
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                ConexionWebService con = new ConexionWebService();
+                latitud = location.getLatitude();
+                longitut = location.getLongitude();
 
-                String localizacion;
-                String latitud = String.valueOf(location.getLatitude()), longitut = String.valueOf(location.getLongitude());
-                localizacion = latitud + "  " + longitut;
-                Toast.makeText(GeoLocalizacion.this, "" + localizacion, Toast.LENGTH_SHORT).show();
-                con.execute(
-                    matricula,
-                        latitud,
-                            longitut);
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date today = Calendar.getInstance().getTime();
+                date = df.format(today);
 
+                con.execute();
             }
 
             @Override
@@ -93,6 +98,7 @@ public class GeoLocalizacion extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Iniciando servicio", Toast.LENGTH_SHORT).show();
         matricula = intent.getStringExtra("matricula");
+        Toast.makeText(this, ""+matricula, Toast.LENGTH_SHORT).show();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -107,29 +113,27 @@ public class GeoLocalizacion extends Service {
     }
 
 
-    private class ConexionWebService extends AsyncTask<String, Void, Boolean> {
+    private class ConexionWebService extends AsyncTask<Void, Void, Boolean> {
 
         public ConexionWebService() {
+
         }
 
         @Override
-        protected Boolean doInBackground(String... params) {
-
+        protected Boolean doInBackground(Void... params) {
             boolean resul = true;
 
             HttpClient httpClient = new DefaultHttpClient();
-            HttpPost post = new HttpPost("http://10.0.2.2:2731/Api/Clientes/Cliente");
+            HttpPost post = new HttpPost("http://192.168.120.81:8080/WebClientRest/webresources/generic");
             post.setHeader("content-type", "application/json");
-
             try {
 
                 JSONObject ubicacion = new JSONObject();
 
-                ubicacion.put("matricula", params[0]);
-                ubicacion.put("latitud", params[1]);
-                ubicacion.put("longitud", params[2]);
-                ubicacion.put("data", params[3]);
-
+                ubicacion.put("matricula",matricula);
+                ubicacion.put("latitud", latitud);
+                ubicacion.put("longitud", longitut);
+                ubicacion.put("data", date);
                 StringEntity entity = new StringEntity(ubicacion.toString());
                 post.setEntity(entity);
 
@@ -147,6 +151,7 @@ public class GeoLocalizacion extends Service {
             }
             return resul;
         }
+
 
         protected void onPostExecute(Boolean result) {
 
