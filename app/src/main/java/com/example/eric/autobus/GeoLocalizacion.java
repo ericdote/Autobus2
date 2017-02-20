@@ -149,11 +149,11 @@ public class GeoLocalizacion extends Service {
         @Override
         protected Boolean doInBackground(Void... params) {
             //Boolean utilizado para saber si se ha insertado o no la ubicacion
-            boolean resul = true;
+            boolean resul;
             //Inicializamos el tipo HttpClient
             HttpClient httpClient = new DefaultHttpClient();
             //Creamos un HttpPost con la IP de nuestro WebService para realizar los Insert Intos
-            HttpPost post = new HttpPost("http://192.168.120.81:8080/WebClientRest/webresources/generic");
+            HttpPost post = new HttpPost("http://192.168.120.81:8080/WebClientRest/webresources/mapas");
             post.setHeader("content-type", "application/json");
             try {
                 //Creamos un objeto JSON
@@ -168,13 +168,7 @@ public class GeoLocalizacion extends Service {
                 post.setEntity(entity);
                 //Creamos un HttpResponse para ejecutar la sentencia POST
                 HttpResponse resp = httpClient.execute(post);
-                String respStr = EntityUtils.toString(resp.getEntity());
-
-                if (!respStr.equals("true")) {
                     resul = true;
-                }
-
-
             } catch (Exception e) {
                 Log.e("ServicioRest", "Error!", e);
                 resul = false;
@@ -190,6 +184,7 @@ public class GeoLocalizacion extends Service {
         protected void onPostExecute(Boolean result) {
 
             if (result) {
+
                 Toast.makeText(GeoLocalizacion.this, "Insertado OK", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(GeoLocalizacion.this, "No insertado", Toast.LENGTH_SHORT).show();
