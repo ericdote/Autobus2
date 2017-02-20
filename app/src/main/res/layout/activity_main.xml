@@ -49,6 +49,7 @@
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
             android:hint="@string/introdueix_la_contrasenya"
+            android:password="true"
             android:ems="10"
             android:id="@+id/etPass" />
 
