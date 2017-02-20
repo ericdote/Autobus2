@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SqlClass extends SQLiteOpenHelper {
 
     String tablaUsersInterna = "CREATE TABLE tablaUsersInterna(matricula TEXT PRIMARY KEY, password TEXT)";
-    String tablaPosicioInterna = "CREATE TABLE tablaPosicio(matricula TEXT, longitud TEXT, latitud TEXT, fecha DATE)";
+    String tablaPosicioInterna = "CREATE TABLE tablaPosicio(matricula TEXT, latitud TEXT, longitud TEXT, fecha DATE)";
 
     public SqlClass(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);

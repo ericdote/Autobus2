@@ -153,7 +153,7 @@ public class GeoLocalizacion extends Service {
             //Inicializamos el tipo HttpClient
             HttpClient httpClient = new DefaultHttpClient();
             //Creamos un HttpPost con la IP de nuestro WebService para realizar los Insert Intos
-            HttpPost post = new HttpPost("http://192.168.120.81:8080/WebClientRest/webresources/mapas");
+            HttpPost post = new HttpPost("http://192.168.1.46:8080/WebClientRest/webresources/mapas");
             post.setHeader("content-type", "application/json");
             try {
                 //Creamos un objeto JSON
@@ -184,7 +184,6 @@ public class GeoLocalizacion extends Service {
         protected void onPostExecute(Boolean result) {
 
             if (result) {
-
                 Toast.makeText(GeoLocalizacion.this, "Insertado OK", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(GeoLocalizacion.this, "No insertado", Toast.LENGTH_SHORT).show();

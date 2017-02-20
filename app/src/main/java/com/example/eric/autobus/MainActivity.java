@@ -17,10 +17,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
+/**
+ * Activity Principal.
+ * Lluis, en aquesta aplicacio, al igual que en la Servidor, hem utilitzat el metode antic per poder localitzar els autobuses
+ * Sabem que esta deprecated, pero com ja t'ho vam comentar a clase t'ho tornem a dir per si de cas perque ho recordis el perque ho vam fer aixi.
+ */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private BroadcastReceiver broadcastReciver;
+    Button btnSubmit;
 
 
     /**
@@ -56,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Intent i = new Intent(getApplicationContext(), GeoLocalizacion.class);
                         i.putExtra("matricula", etUser.getText().toString());
                         startService(i);
+                        btnSubmit.setEnabled(false);
                     } else {
                         Toast.makeText(this, "L'usuari no existeix", Toast.LENGTH_SHORT).show();
                     }
@@ -67,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btnStop:
                 Intent i = new Intent(getApplicationContext(), GeoLocalizacion.class);
                 stopService(i);
+                btnSubmit.setEnabled(true);
                 break;
         }
     }
@@ -129,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Metodo que activa los botones
      */
     private void enable_buttons() {
-        Button btnSubmit = (Button) findViewById(R.id.btnSubmit);
+        btnSubmit = (Button) findViewById(R.id.btnSubmit);
         Button btnStop = (Button) findViewById(R.id.btnStop);
         btnSubmit.setOnClickListener(this);
         btnStop.setOnClickListener(this);
